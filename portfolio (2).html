@@ -1,0 +1,506 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--c1:#00d4ff;--c2:#7b2fff;--c3:#ff2d78;--c4:#00ffb3;--font:'Outfit',sans-serif;--mono:'Space Mono',monospace}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:radial-gradient( #1c1a1a 0%, #000000 100%);background-attachment: fixed; /* يجعل الخلفية ثابتة أثناء السكرول لمظهر أفخم */
+    color: #e8f4ff;
+    overflow-x: hidden;}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--c1),var(--c2));border-radius:2px}
+
+/* GALAXY CANVAS — fixed, covers full page */
+#galaxyCanvas{position:absolute;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+
+/* NAV */
+#menuBtn{position:fixed;top:1.4rem;right:2rem;z-index:200;width:48px;height:48px;border-radius:12px;background:rgba(0,0,0,0.6);border:1px solid rgba(0,212,255,0.3);backdrop-filter:blur(16px);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:border-color .3s,box-shadow .3s}
+#menuBtn:hover{border-color:var(--c1);box-shadow:0 0 18px rgba(0,212,255,0.3)}
+#menuBtn span{display:block;width:22px;height:2px;border-radius:2px;background:var(--c1);transition:transform .4s cubic-bezier(.77,0,.18,1),opacity .3s,width .3s}
+#menuBtn.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+#menuBtn.open span:nth-child(2){opacity:0;width:0}
+#menuBtn.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+#navOverlay{position:fixed;inset:0;z-index:150;background:rgba(0,0,0,0.96);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2.5rem;opacity:0;pointer-events:none;transition:opacity .45s cubic-bezier(.77,0,.18,1)}
+#navOverlay.open{opacity:1;pointer-events:all}
+#navOverlay a{font-size:clamp(2.2rem,5vw,3.5rem);font-weight:800;letter-spacing:-.02em;color:rgba(200,220,255,0.3);text-decoration:none;transition:color .3s;position:relative}
+#navOverlay a::after{content:attr(data-label);position:absolute;inset:0;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:0;transition:opacity .3s}
+#navOverlay a:hover{color:transparent}
+#navOverlay a:hover::after{opacity:1}
+.nav-logo{position:fixed;top:1.5rem;left:2rem;z-index:200;font-family:var(--mono);font-size:.95rem;font-weight:700;background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* HERO */
+#hero{position:relative;z-index:1;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#planetCanvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:0;pointer-events:none}
+.hero-content{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center}
+.status-pill{display:inline-flex;align-items:center;gap:10px;background:rgba(0,255,179,0.07);border:1px solid rgba(0,255,179,0.28);padding:.4rem 1.1rem;border-radius:100px;font-family:var(--mono);font-size:.7rem;color:var(--c4);margin-bottom:2rem;animation:fadeUp .9s ease both}
+.pring{width:9px;height:9px;border-radius:50%;background:var(--c4);position:relative;flex-shrink:0}
+.pring::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--c4);animation:rp 1.8s ease-out infinite}
+@keyframes rp{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.6);opacity:0}}
+.hero-name{font-size:clamp(4rem,10vw,8rem);font-weight:900;line-height:.95;letter-spacing:-.05em;animation:fadeUp .9s .1s ease both}
+.hn-plain{color:#fff;display:block}
+.hn-glow{display:block;background:linear-gradient(135deg,var(--c1) 0%,var(--c2) 45%,var(--c3) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;filter:drop-shadow(0 0 40px rgba(0,212,255,0.55))}
+.hero-role{font-family:var(--mono);font-size:1rem;color:rgba(180,210,255,0.5);margin-top:1.2rem;animation:fadeUp .9s .18s ease both}
+.rc{color:var(--c1);animation:blink 1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.hero-desc{font-size:1rem;color:rgba(160,200,255,0.55);max-width:460px;line-height:1.9;margin-top:1.4rem;animation:fadeUp .9s .26s ease both}
+.hero-btns{display:flex;gap:1.2rem;margin-top:2.5rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .9s .34s ease both}
+.big-btn{position:relative;overflow:hidden;font-family:var(--font);font-weight:700;font-size:1rem;letter-spacing:.04em;padding:1rem 2.8rem;border-radius:14px;cursor:pointer;border:none;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s;background-size:200% 200%}
+.big-btn::before{content:'';position:absolute;inset:0;border-radius:14px;background:inherit;filter:blur(20px);opacity:0;transition:opacity .35s;z-index:-1;transform:translateY(6px) scale(.95)}
+.big-btn:hover{transform:translateY(-5px) scale(1.04)}
+.big-btn:hover::before{opacity:.7}
+.btn-primary-big{background:linear-gradient(135deg,#00d4ff,#7b2fff,#ff2d78);background-size:200% 200%;animation:gradShift 4s ease infinite;color:#fff;box-shadow:0 4px 30px rgba(0,212,255,0.35)}
+@keyframes gradShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.btn-outline-big{background:transparent;color:#e8f4ff;border:1px solid rgba(0,212,255,0.4)!important;box-shadow:inset 0 0 0 1px rgba(0,212,255,0.15);transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .35s,background .35s,color .35s}
+.btn-outline-big:hover{background:rgba(0,212,255,0.08);border-color:rgba(0,212,255,.8)!important;box-shadow:0 0 28px rgba(0,212,255,0.25),inset 0 0 0 1px rgba(0,212,255,0.4);color:var(--c1)}
+.hero-stats{display:flex;gap:3.5rem;margin-top:3.5rem;animation:fadeUp .9s .42s ease both}
+.stat-item{text-align:center}
+.stat-num{font-size:2.6rem;font-weight:900;letter-spacing:-.04em;background:linear-gradient(135deg,var(--c1),var(--c4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stat-lbl{font-size:.68rem;color:rgba(180,210,255,0.35);text-transform:uppercase;letter-spacing:.18em;margin-top:5px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTIONS */
+section{position:relative;z-index:1;padding:6rem 3rem;max-width:1100px;margin:0 auto}
+.s-tag{font-family:var(--mono);font-size:.7rem;color:var(--c1);text-transform:uppercase;letter-spacing:.2em;margin-bottom:.6rem;display:flex;align-items:center;gap:10px}
+.s-tag::before{content:'';display:block;width:28px;height:1px;background:var(--c1);opacity:.6}
+.s-title{font-size:clamp(2rem,4.5vw,3rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:.8rem}
+.s-title span{background:linear-gradient(90deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.s-sub{color:rgba(180,210,255,0.45);font-size:.9rem;line-height:1.85;max-width:460px;margin-bottom:3rem}
+.aline{width:60px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3));margin-bottom:2.5rem;position:relative;overflow:hidden}
+.aline::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.9),transparent);animation:shine 2.5s linear infinite}
+@keyframes shine{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* SKILL CARDS */
+.skills-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:1.2rem}
+.sk-card{position:relative;overflow:hidden;background:linear-gradient(145deg,#0d0d0d,#141414,#0a0a0a);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:2rem 1.2rem 1.5rem;display:flex;flex-direction:column;align-items:center;gap:1rem;cursor:default;transition:transform .4s cubic-bezier(.34,1.56,.64,1),border-color .4s,box-shadow .4s;opacity:0;transform:translateY(30px)}
+.sk-card.visible{opacity:1;transform:translateY(0)}
+.sk-card::before{content:'';position:absolute;inset:0;border-radius:18px;opacity:0;background:var(--card-grad,linear-gradient(135deg,rgba(0,212,255,0.12),rgba(123,47,255,0.12)));transition:opacity .4s}
+.sk-card::after{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.04),transparent);transition:left .6s ease}
+.sk-card:hover{transform:translateY(-10px) scale(1.04);border-color:rgba(0,212,255,0.5);box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 0 1px rgba(0,212,255,0.15),0 0 40px var(--card-glow,rgba(0,212,255,0.12))}
+.sk-card:hover::before{opacity:1}
+.sk-card:hover::after{left:140%}
+.sk-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.7rem;position:relative;flex-shrink:0}
+.sk-name{font-size:.88rem;font-weight:700;color:#c8e0ff;letter-spacing:.04em;text-align:center}
+.sk-bar{width:100%;height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.sk-fill{height:100%;border-radius:2px;background:var(--card-bar,linear-gradient(90deg,var(--c1),var(--c2)));transform:scaleX(0);transform-origin:left;transition:transform 1.3s cubic-bezier(.22,1,.36,1)}
+.sk-card.visible .sk-fill{transform:scaleX(1)}
+
+/* PROJECT CARDS */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.8rem}
+.proj-card{position:relative;overflow:hidden;background:linear-gradient(160deg,#0c0c0c,#111,#0a0a0a);border:1px solid rgba(255,255,255,0.07);border-radius:20px;transition:transform .4s cubic-bezier(.34,1.56,.64,1),border-color .4s,box-shadow .4s;opacity:0;transform:translateY(30px);cursor:pointer}
+.proj-card.visible{opacity:1;transform:translateY(0)}
+.proj-card::before{content:'';position:absolute;inset:0;border-radius:20px;opacity:0;background:var(--pgrad,linear-gradient(135deg,rgba(0,212,255,0.08),rgba(123,47,255,0.08)));transition:opacity .4s;pointer-events:none}
+.proj-card:hover{transform:translateY(-12px) scale(1.025);border-color:rgba(0,212,255,0.45);box-shadow:0 30px 70px rgba(0,0,0,.6),0 0 0 1px rgba(0,212,255,0.12),0 0 60px var(--pglow,rgba(0,212,255,0.1))}
+.proj-card:hover::before{opacity:1}
+.proj-thumb{height:195px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+.proj-thumb-bg{position:absolute;inset:0;transition:transform .7s ease}
+.proj-card:hover .proj-thumb-bg{transform:scale(1.08)}
+.proj-thumb-icon{position:relative;z-index:1;width:72px;height:72px;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:rgba(0,0,0,0.4);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);transition:transform .4s cubic-bezier(.34,1.56,.64,1),box-shadow .4s}
+.proj-card:hover .proj-thumb-icon{transform:scale(1.15) translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.5)}
+.proj-body{padding:1.6rem}
+.proj-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1rem}
+.ptag{font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;padding:4px 12px;border-radius:100px;background:rgba(0,212,255,0.08);color:var(--c1);border:1px solid rgba(0,212,255,0.2)}
+.proj-title{font-size:1.15rem;font-weight:800;color:#e8f4ff;margin-bottom:.55rem;letter-spacing:-.01em}
+.proj-desc{font-size:.83rem;color:rgba(180,210,255,0.5);line-height:1.75}
+.proj-footer{display:flex;justify-content:space-between;align-items:center;margin-top:1.4rem;padding-top:1.1rem;border-top:1px solid rgba(255,255,255,0.06)}
+.proj-link{font-size:.78rem;color:rgba(180,210,255,0.45);text-decoration:none;display:flex;align-items:center;gap:5px;transition:color .3s;font-weight:600}
+.proj-link:hover{color:var(--c1)}
+.proj-arrow{width:36px;height:36px;border-radius:10px;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.18);display:flex;align-items:center;justify-content:center;color:var(--c1);font-size:1rem;transition:all .3s;cursor:pointer}
+.proj-arrow:hover{background:var(--c1);color:#000;box-shadow:0 0 16px rgba(0,212,255,0.5)}
+
+/* ABOUT */
+.about-wrap{display:grid;grid-template-columns:auto 1fr;gap:4rem;align-items:start}
+.avatar-frame{width:260px;height:260px;border-radius:24px;position:relative;flex-shrink:0}
+.avatar-bg{width:100%;height:100%;border-radius:24px;background:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(123,47,255,0.18));border:1px solid rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;font-size:5rem;position:relative;overflow:hidden}
+.avatar-bg::before{content:'';position:absolute;inset:-50%;background:conic-gradient(from 0deg,transparent 0deg,rgba(0,212,255,0.08) 60deg,transparent 120deg);animation:rot 8s linear infinite}
+@keyframes rot{to{transform:rotate(360deg)}}
+.ac{position:absolute;width:18px;height:18px;border-color:var(--c1);border-style:solid;opacity:.7}
+.ac.tl{top:8px;left:8px;border-width:2px 0 0 2px;border-radius:3px 0 0 0}
+.ac.tr{top:8px;right:8px;border-width:2px 2px 0 0;border-radius:0 3px 0 0}
+.ac.bl{bottom:8px;left:8px;border-width:0 0 2px 2px;border-radius:0 0 0 3px}
+.ac.br{bottom:8px;right:8px;border-width:0 2px 2px 0;border-radius:0 0 3px 0}
+.about-text p{color:rgba(180,210,255,0.55);line-height:1.9;margin-bottom:1.1rem;font-size:.93rem}
+.about-text strong{color:#d0e8ff}
+.chips{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem}
+.chip{font-size:.72rem;font-weight:700;letter-spacing:.06em;padding:5px 14px;border-radius:100px;background:rgba(0,212,255,0.07);color:var(--c1);border:1px solid rgba(0,212,255,0.18)}
+
+/* CONTACT */
+.contact-wrap{display:grid;grid-template-columns:1fr 1fr;gap:3.5rem}
+.contact-info h3{font-size:1.5rem;font-weight:800;color:#e8f4ff;margin-bottom:1rem;letter-spacing:-.02em}
+.contact-info p{color:rgba(180,210,255,0.5);line-height:1.85;margin-bottom:2rem;font-size:.88rem}
+.c-links{display:flex;flex-direction:column;gap:.9rem}
+.c-link{display:flex;align-items:center;gap:12px;color:rgba(180,210,255,0.45);text-decoration:none;font-size:.85rem;transition:color .3s;font-weight:500}
+.c-link:hover{color:var(--c1)}
+.c-icon{width:40px;height:40px;border-radius:10px;flex-shrink:0;background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.18);display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all .3s}
+.c-link:hover .c-icon{background:rgba(0,212,255,0.14);border-color:rgba(0,212,255,0.45)}
+.cf{display:flex;flex-direction:column;gap:.9rem}
+.cf input,.cf textarea{background:rgba(10,10,10,0.9);border:1px solid rgba(0,212,255,0.12);border-radius:10px;padding:.9rem 1rem;color:#e8f4ff;font-family:var(--font);font-size:.88rem;outline:none;transition:border-color .3s,box-shadow .3s;resize:none}
+.cf input:focus,.cf textarea:focus{border-color:rgba(0,212,255,0.5);box-shadow:0 0 20px rgba(0,212,255,0.1)}
+.cf input::placeholder,.cf textarea::placeholder{color:rgba(180,210,255,0.25)}
+.cf textarea{height:125px}
+.cf-btn{position:relative;overflow:hidden;background:linear-gradient(135deg,#000,#1a1a1a,#0d0d0d);border:1px solid rgba(0,212,255,0.35);color:#e8f4ff;font-family:var(--font);font-weight:700;font-size:.92rem;padding:1rem;border-radius:10px;cursor:pointer;letter-spacing:.06em;transition:all .4s cubic-bezier(.34,1.56,.64,1)}
+.cf-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,212,255,0.15),rgba(123,47,255,0.15));opacity:0;transition:opacity .4s}
+.cf-btn:hover{transform:translateY(-3px);border-color:var(--c1);box-shadow:0 0 30px rgba(0,212,255,0.25),0 10px 30px rgba(0,0,0,.4);color:var(--c1)}
+.cf-btn:hover::before{opacity:1}
+
+footer{position:relative;z-index:1;text-align:center;padding:2.5rem;border-top:1px solid rgba(255,255,255,0.05);color:rgba(180,210,255,0.25);font-family:var(--mono);font-size:.75rem}
+footer span{color:var(--c3)}
+</style>
+
+<!-- GALAXY BG -->
+<canvas id="galaxyCanvas"></canvas>
+
+<!-- NAV -->
+<div class="nav-logo">&lt;MK/&gt;</div>
+<button id="menuBtn" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+<div id="navOverlay">
+  <a href="#skills" data-label="Skills" onclick="closeMenu()">Skills</a>
+  <a href="#projects" data-label="Projects" onclick="closeMenu()">Projects</a>
+  <a href="#about" data-label="About" onclick="closeMenu()">About</a>
+  <a href="#contact" data-label="Contact" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<div id="hero">
+  <canvas id="planetCanvas"></canvas>
+  <div class="hero-content">
+    <div class="status-pill"><div class="pring"></div>Available for work</div>
+    <h1 class="hero-name">
+      <span class="hn-plain">Fatma</span>
+      <span class="hn-glow">Ahmed</span>
+    </h1>
+    <div class="hero-role">&gt;&nbsp;<span id="typed-text"></span><span class="rc"></span></div>
+    <p class="hero-desc">
+
+Full-Stack Developer
+
+"I combine the power of logic with the beauty of design. Specialist in building modern web applications using the latest technologies. I believe that great code isn’t just about functionality, but about solving problems with intelligence and elegance.</p>
+    <div class="hero-btns">
+      <button class="big-btn btn-primary-big" onclick="document.querySelector('#projects').scrollIntoView({behavior:'smooth'})">View My Work ↓</button>
+      <button class="big-btn btn-outline-big" onclick="document.querySelector('#contact').scrollIntoView({behavior:'smooth'})">Let's Talk →</button>
+    </div>
+    <div class="hero-stats">
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="s-tag">what I know</div>
+  <h2 class="s-title">Skills & <span>Technologies</span></h2>
+  <div class="aline"></div>
+  <p class="s-sub">Tools I've mastered to build exceptional, performant digital products.</p>
+  <div class="skills-wrap">
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(240,219,79,0.1),rgba(240,160,0,0.08));--card-glow:rgba(240,200,0,0.15);--card-bar:linear-gradient(90deg,#f0db4f,#e8a000)"><div class="sk-icon" style="background:rgba(240,219,79,0.12)">⚡</div><div class="sk-name">JavaScript</div><div class="sk-bar"><div class="sk-fill" style="width:80%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(97,218,251,0.1),rgba(0,180,255,0.08));--card-glow:rgba(97,218,251,0.18);--card-bar:linear-gradient(90deg,#61dafb,#0090cc)"><div class="sk-icon" style="background:rgba(97,218,251,0.12)">⚛</div><div class="sk-name">React.js</div><div class="sk-bar"><div class="sk-fill" style="width:88%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(200,200,200,0.08),rgba(150,150,150,0.05));--card-glow:rgba(200,200,200,0.12);--card-bar:linear-gradient(90deg,#fff,#aaa)"><div class="sk-icon" style="background:rgba(180,180,180,0.08)">🌿</div><div class="sk-name">Node.js</div><div class="sk-bar"><div class="sk-fill" style="width:80%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(255,100,40,0.1),rgba(255,60,0,0.07));--card-glow:rgba(255,80,30,0.18);--card-bar:linear-gradient(90deg,#ff6428,#e63000)"><div class="sk-icon" style="background:rgba(241,101,41,0.12)">🎨</div><div class="sk-name">HTML & CSS</div><div class="sk-bar"><div class="sk-fill" style="width:96%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(56,189,248,0.1),rgba(14,165,233,0.08));--card-glow:rgba(56,189,248,0.18);--card-bar:linear-gradient(90deg,#38bdf8,#0ea5e9)"><div class="sk-icon" style="background:rgba(56,189,248,0.1)">💧</div><div class="sk-name">Tailwind</div><div class="sk-bar"><div class="sk-fill" style="width:85%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(49,120,198,0.12),rgba(0,90,180,0.08));--card-glow:rgba(49,120,198,0.2);--card-bar:linear-gradient(90deg,#3178c6,#0050b0)"><div class="sk-icon" style="background:rgba(49,120,198,0.12)">🔷</div><div class="sk-name">Bootstrap</div><div class="sk-bar"><div class="sk-fill" style="width:90%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(255,149,0,0.1),rgba(255,100,0,0.07));--card-glow:rgba(255,149,0,0.18);--card-bar:linear-gradient(90deg,#ff9500,#ff5500)"><div class="sk-icon" style="background:rgba(255,149,0,0.1)">🐘</div><div class="sk-name">Php</div><div class="sk-bar"><div class="sk-fill" style="width:90%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(123,47,255,0.12),rgba(80,0,255,0.08));--card-glow:rgba(123,47,255,0.2);--card-bar:linear-gradient(90deg,#7b2fff,#5000ff)"><div class="sk-icon" style="background:rgba(68,76,247,0.1)">🚀</div><div class="sk-name">Laravel</div><div class="sk-bar"><div class="sk-fill" style="width:82%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(123,47,255,0.12),rgba(80,0,255,0.08));--card-glow:rgba(123,47,255,0.2);--card-bar:linear-gradient(90deg,#7b2fff,#5000ff)"><div class="sk-icon" style="background:rgba(68,76,247,0.1)">🗄️</div><div class="sk-name">Sql</div><div class="sk-bar"><div class="sk-fill" style="width:82%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(123,47,255,0.12),rgba(80,0,255,0.08));--card-glow:rgba(123,47,255,0.2);--card-bar:linear-gradient(90deg,#7b2fff,#5000ff)"><div class="sk-icon" style="background:rgba(68,76,247,0.1)">🐍</div><div class="sk-name">Python</div><div class="sk-bar"><div class="sk-fill" style="width:90%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(123,47,255,0.12),rgba(80,0,255,0.08));--card-glow:rgba(123,47,255,0.2);--card-bar:linear-gradient(90deg,#7b2fff,#5000ff)"><div class="sk-icon" style="background:rgba(68,76,247,0.1)">🖥️</div><div class="sk-name">Tkinter</div><div class="sk-bar"><div class="sk-fill" style="width:82%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(123,47,255,0.12),rgba(80,0,255,0.08));--card-glow:rgba(123,47,255,0.2);--card-bar:linear-gradient(90deg,#7b2fff,#5000ff)"><div class="sk-icon" style="background:rgba(68,76,247,0.1)">⚙️</div><div class="sk-name">C</div><div class="sk-bar"><div class="sk-fill" style="width:80%"></div></div></div>
+    <div class="sk-card" style="--card-grad:linear-gradient(135deg,rgba(123,47,255,0.12),rgba(80,0,255,0.08));--card-glow:rgba(123,47,255,0.2);--card-bar:linear-gradient(90deg,#7b2fff,#5000ff)"><div class="sk-icon" style="background:rgba(68,76,247,0.1)">🐙</div><div class="sk-name">GitHub</div><div class="sk-bar"><div class="sk-fill" style="width:82%"></div></div></div>
+
+
+
+
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="s-tag">what I built</div>
+  <h2 class="s-title">Featured <span>Projects</span></h2>
+  <div class="aline"></div>
+  <p class="s-sub">Selected work — from concept to deployed product.</p>
+  <div class="proj-grid">
+    <div class="proj-card" style="--pgrad:linear-gradient(135deg,rgba(0,212,255,0.1),rgba(0,150,200,0.07));--pglow:rgba(0,212,255,0.15)">
+      <div class="proj-thumb"><div class="proj-thumb-bg" style="background:linear-gradient(135deg,#020c1b,#041e35,#020f22)"></div><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(0,212,255,0.22),transparent 65%)"></div><div class="proj-thumb-icon">🛒</div></div>
+      <div class="proj-body"><div class="proj-tags"><span class="ptag">React</span><span class="ptag">Redux</span><span class="ptag">Firebase</span></div><div class="proj-title">E-Commerce Platform</div><p class="proj-desc">Full-featured shopping app with cart, payments, and admin dashboard with real-time inventory.</p><div class="proj-footer"><div style="display:flex;gap:1.2rem"><a href="#" class="proj-link">Live →</a><a href="#" class="proj-link">GitHub</a></div><div class="proj-arrow">↗</div></div></div>
+    </div>
+    <div class="proj-card" style="--pgrad:linear-gradient(135deg,rgba(123,47,255,0.1),rgba(80,0,200,0.07));--pglow:rgba(123,47,255,0.15)">
+      <div class="proj-thumb"><div class="proj-thumb-bg" style="background:linear-gradient(135deg,#0d0221,#1a0533,#0a0118)"></div><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(123,47,255,0.28),transparent 65%)"></div><div class="proj-thumb-icon">💬</div></div>
+      <div class="proj-body"><div class="proj-tags"><span class="ptag">Next.js</span><span class="ptag">Socket.io</span><span class="ptag">MongoDB</span></div><div class="proj-title">Real-Time Chat App</div><p class="proj-desc">Instant messaging with rooms, typing indicators, media sharing and end-to-end encryption.</p><div class="proj-footer"><div style="display:flex;gap:1.2rem"><a href="#" class="proj-link">Live →</a><a href="#" class="proj-link">GitHub</a></div><div class="proj-arrow">↗</div></div></div>
+    </div>
+    <div class="proj-card" style="--pgrad:linear-gradient(135deg,rgba(123,47,255,0.1),rgba(80,0,200,0.07));--pglow:rgba(123,47,255,0.15)">
+      <div class="proj-thumb"><div class="proj-thumb-bg" style="background:linear-gradient(135deg,#0d0221,#1a0533,#0a0118)"></div><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(123,47,255,0.28),transparent 65%)"></div><div class="proj-thumb-icon">💬</div></div>
+      <div class="proj-body"><div class="proj-tags"><span class="ptag">Next.js</span><span class="ptag">Socket.io</span><span class="ptag">MongoDB</span></div><div class="proj-title">Real-Time Chat App</div><p class="proj-desc">Instant messaging with rooms, typing indicators, media sharing and end-to-end encryption.</p><div class="proj-footer"><div style="display:flex;gap:1.2rem"><a href="#" class="proj-link">Live →</a><a href="#" class="proj-link">GitHub</a></div><div class="proj-arrow">↗</div></div></div>
+    </div>
+    <div class="proj-card" style="--pgrad:linear-gradient(135deg,rgba(0,255,179,0.08),rgba(0,200,140,0.06));--pglow:rgba(0,255,179,0.12)">
+      <div class="proj-thumb"><div class="proj-thumb-bg" style="background:linear-gradient(135deg,#020f15,#041e18,#021510)"></div><div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 80%,rgba(0,255,179,0.22),transparent 65%)"></div><div class="proj-thumb-icon">📊</div></div>
+      <div class="proj-body"><div class="proj-tags"><span class="ptag">React</span><span class="ptag">D3.js</span><span class="ptag">REST API</span></div><div class="proj-title">Analytics Dashboard</div><p class="proj-desc">Interactive data visualization with live charts, custom filters and one-click PDF exports.</p><div class="proj-footer"><div style="display:flex;gap:1.2rem"><a href="#" class="proj-link">Live →</a><a href="#" class="proj-link">GitHub</a></div><div class="proj-arrow">↗</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="s-tag">who I am</div>
+  <h2 class="s-title">About <span>Me</span></h2>
+  <div class="aline"></div>
+  <div class="about-wrap">
+    <div class="avatar-frame"><div class="avatar-bg">👨‍💻</div><div class="ac tl"></div><div class="ac tr"></div><div class="ac bl"></div><div class="ac br"></div></div>
+    <div class="about-text">
+      <p>Hi! I'm <strong>Fatma Ahmed</strong>, a passionate full-stack Developer from Egypt who loves turning complex problems into elegant, immersive digital experiences.</p>
+      <p>With 3+ years building production-grade web apps, I'm obsessed with performance, animation, and UI that makes users go "wow".</p>
+      <p>Let's build something extraordinary together.</p>
+      <div class="chips"><span class="chip">React.js</span><span class="chip">Next.js</span><span class="chip">TypeScript</span><span class="chip">Tailwind</span><span class="chip">Node.js</span><span class="chip">Figma</span><span class="chip">Animations</span><span class="chip">Performance</span></div>
+<div style="margin-top:2rem">
+    <a href="files/My_CV.pdf" download="Fatma_Ahmed_CV.pdf" style="text-decoration: none;">
+        <button class="big-btn btn-outline-big">Download CV ↓</button>
+    </a>
+</div>    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="s-tag">let's connect</div>
+  <h2 class="s-title">Get In <span>Touch</span></h2>
+  <div class="aline"></div>
+  <div class="contact-wrap">
+    <div class="contact-info">
+      <h3>Let's build something great</h3>
+      <p>Open to freelance projects, full-time roles, and exciting collaborations.</p>
+      <div class="c-links">
+        <a href="mailto:fatmaata718@gmail.com" class="c-link"><div class="c-icon">📧</div>fatmaata718@gmail.com</a>
+<a href="https://wa.me/201207132301" class="c-link" target="_blank">
+    <div class="c-icon">🟢</div>https://wa.me/201207132301
+</a>        <a href="https://github.com/fatma-programmer" class="c-link"><div class="c-icon">🐙</div>https://github.com/fatma-programmer</a>
+      </div>
+    </div>
+    
+</section>
+
+<footer>&lt; Built with <span>♥</span> by Fatma Ahmed /&gt;</footer>
+
+<script>
+// ===== MENU =====
+function toggleMenu(){document.getElementById('menuBtn').classList.toggle('open');document.getElementById('navOverlay').classList.toggle('open')}
+function closeMenu(){document.getElementById('menuBtn').classList.remove('open');document.getElementById('navOverlay').classList.remove('open')}
+
+// ===== GALAXY BACKGROUND — rotates like you're flying through space =====
+const gc = document.getElementById('galaxyCanvas');
+const gctx = gc.getContext('2d');
+let GW, GH;
+
+// Star layers for parallax depth
+const layers = [
+  { count: 320, speed: 0.00008, size: [0.3, 0.9], alpha: [0.2, 0.55], r: null },
+  { count: 180, speed: 0.00018, size: [0.7, 1.5], alpha: [0.4, 0.85], r: null },
+  { count: 80,  speed: 0.00035, size: [1.2, 2.4], alpha: [0.6, 1.0],  r: null },
+  { count: 25,  speed: 0.0006,  size: [2.0, 3.5], alpha: [0.7, 1.0],  r: null },
+];
+
+// Each star: angle, distance from centre, size, alpha, twinkle phase
+function mkGalaxyStar(layer) {
+  const angle = Math.random() * Math.PI * 2;
+  // spread stars across full radius with slight cluster toward edges
+  const dist = Math.pow(Math.random(), 0.6);
+  const sz = layer.size[0] + Math.random() * (layer.size[1] - layer.size[0]);
+  const al = layer.alpha[0] + Math.random() * (layer.alpha[1] - layer.alpha[0]);
+  // colour: mostly white-blue, occasionally warm
+  const warm = Math.random() < 0.12;
+  return { angle, dist, sz, al, tw: Math.random() * Math.PI * 2, twSpeed: 0.005 + Math.random() * 0.02, warm };
+}
+
+function initGalaxy() {
+  GW = gc.width = window.innerWidth;
+  GH = gc.height = window.innerHeight;
+  layers.forEach(l => { l.r = Math.min(GW, GH) * 0.52 + 60; l.stars = Array.from({ length: l.count }, () => mkGalaxyStar(l)); });
+}
+initGalaxy();
+window.addEventListener('resize', initGalaxy);
+
+let galaxyAngle = 0;
+
+// Milky Way band — a soft elliptical glow across the canvas
+function drawMilkyWay(cx, cy, angle) {
+  gctx.save();
+  gctx.translate(cx, cy);
+  gctx.rotate(angle + Math.PI / 5);
+
+  const bw = Math.max(GW, GH) * 1.6;
+  const bh = Math.max(GW, GH) * 0.22;
+  const grd = gctx.createRadialGradient(0, 0, 0, 0, 0, bh);
+  grd.addColorStop(0,   'rgba(80,120,200,0.045)');
+  grd.addColorStop(0.4, 'rgba(60,90,160,0.025)');
+  grd.addColorStop(1,   'rgba(0,0,0,0)');
+
+  gctx.scale(bw / bh, 1);
+  gctx.beginPath();
+  gctx.arc(0, 0, bh, 0, Math.PI * 2);
+  gctx.fillStyle = grd;
+  gctx.fill();
+  gctx.restore();
+
+  // secondary band offset
+  gctx.save();
+  gctx.translate(cx, cy);
+  gctx.rotate(angle + Math.PI / 5 + 0.3);
+  const bw2 = Math.max(GW, GH) * 1.4;
+  const bh2 = Math.max(GW, GH) * 0.1;
+  const grd2 = gctx.createRadialGradient(0, 0, 0, 0, 0, bh2);
+  grd2.addColorStop(0,   'rgba(100,60,180,0.03)');
+  grd2.addColorStop(1,   'rgba(0,0,0,0)');
+  gctx.scale(bw2 / bh2, 1);
+  gctx.beginPath();
+  gctx.arc(0, 0, bh2, 0, Math.PI * 2);
+  gctx.fillStyle = grd2;
+  gctx.fill();
+  gctx.restore();
+}
+
+function drawGalaxy() {
+  gctx.clearRect(0, 0, GW, GH);
+  const cx = GW / 2, cy = GH / 2;
+
+  // Faint vignette centre glow (nebula core)
+  const core = gctx.createRadialGradient(cx, cy, 0, cx, cy, Math.min(GW, GH) * 0.5);
+  core.addColorStop(0,   'rgba(20,30,80,0.18)');
+  core.addColorStop(0.4, 'rgba(5,10,30,0.08)');
+  core.addColorStop(1,   'rgba(0,0,0,0)');
+  gctx.fillStyle = core;
+  gctx.fillRect(0, 0, GW, GH);
+
+  // Milky Way soft band
+  drawMilkyWay(cx, cy, galaxyAngle);
+
+  // Rotating star layers
+  const t = Date.now() * 0.001;
+  layers.forEach((layer, li) => {
+    const baseAngle = galaxyAngle * (1 + li * 0.4); // outer layers rotate faster
+    layer.stars.forEach(s => {
+      const a = s.angle + baseAngle;
+      const r = s.dist * layer.r;
+      const x = cx + Math.cos(a) * r;
+      const y = cy + Math.sin(a) * r * 0.72; // slight elliptical tilt
+
+      // Keep star in canvas — wrap
+      const sx = ((x % GW) + GW) % GW;
+      const sy = ((y % GH) + GH) % GH;
+
+      s.tw += s.twSpeed;
+      const twinkle = 0.55 + 0.45 * Math.sin(s.tw);
+      const finalAlpha = s.al * twinkle;
+
+      // Colour
+      let col;
+      if (s.warm) col = `rgba(255,220,180,${finalAlpha})`;
+      else if (s.sz > 2) col = `rgba(180,220,255,${finalAlpha})`;
+      else col = `rgba(210,230,255,${finalAlpha})`;
+
+      gctx.beginPath();
+      gctx.arc(sx, sy, s.sz, 0, Math.PI * 2);
+      gctx.fillStyle = col;
+      gctx.fill();
+
+      // Big stars get a soft cross-flare
+      if (s.sz > 2.5 && twinkle > 0.8) {
+        const fl = s.sz * 6;
+        const fg = gctx.createRadialGradient(sx, sy, 0, sx, sy, fl);
+        fg.addColorStop(0, `rgba(180,220,255,${finalAlpha * 0.4})`);
+        fg.addColorStop(1, 'rgba(0,0,0,0)');
+        gctx.beginPath();
+        gctx.arc(sx, sy, fl, 0, Math.PI * 2);
+        gctx.fillStyle = fg;
+        gctx.fill();
+      }
+    });
+  });
+
+  // Occasional shooting star
+  if (Math.random() < 0.007) {
+    const sx = Math.random() * GW, sy = Math.random() * GH * 0.5;
+    const len = 90 + Math.random() * 160;
+    const ang = 0.3 + Math.random() * 0.5;
+    const sg = gctx.createLinearGradient(sx, sy, sx + len * Math.cos(ang), sy + len * Math.sin(ang));
+    sg.addColorStop(0, 'rgba(0,212,255,0)');
+    sg.addColorStop(0.3, 'rgba(180,230,255,0.95)');
+    sg.addColorStop(1, 'rgba(0,212,255,0)');
+    gctx.beginPath();
+    gctx.moveTo(sx, sy);
+    gctx.lineTo(sx + len * Math.cos(ang), sy + len * Math.sin(ang));
+    gctx.strokeStyle = sg;
+    gctx.lineWidth = 1.5;
+    gctx.stroke();
+  }
+
+  galaxyAngle += 0.00025; // slow steady rotation — feels like you're the one drifting
+  requestAnimationFrame(drawGalaxy);
+}
+drawGalaxy();
+
+// ===== PLANET CANVAS =====
+const pc = document.getElementById('planetCanvas');
+const pctx = pc.getContext('2d');
+let PW, PH, moonAngle = 0;
+function resizePlanet() { const h = document.getElementById('hero'); PW = pc.width = h.offsetWidth; PH = pc.height = h.offsetHeight; pc.style.width = PW + 'px'; pc.style.height = PH + 'px'; }
+resizePlanet(); window.addEventListener('resize', resizePlanet);
+
+function drawPlanet() {
+  pctx.clearRect(0, 0, PW, PH);
+  const cx = PW / 2, cy = PH / 2, PR = Math.min(PW, PH) * 0.22;
+
+  const pb = pctx.createRadialGradient(cx - PR * .3, cy - PR * .3, PR * .05, cx, cy, PR);
+  pb.addColorStop(0, '#1a2a4a'); pb.addColorStop(0.35, '#0d1a30'); pb.addColorStop(0.7, '#080f1e'); pb.addColorStop(1, '#030810');
+  pctx.beginPath(); pctx.arc(cx, cy, PR, 0, Math.PI * 2); pctx.fillStyle = pb; pctx.fill();
+
+  pctx.save(); pctx.beginPath(); pctx.arc(cx, cy, PR, 0, Math.PI * 2); pctx.clip();
+  for (let i = 0; i < 5; i++) { const ly = cy - PR * .6 + i * PR * .3; const lw = Math.sqrt(Math.max(0, PR * PR - (ly - cy) * (ly - cy))) * 2; const g = pctx.createLinearGradient(cx - lw / 2, ly, cx + lw / 2, ly); g.addColorStop(0, 'rgba(0,212,255,0)'); g.addColorStop(.4, 'rgba(0,212,255,0.05)'); g.addColorStop(.6, 'rgba(100,180,255,0.06)'); g.addColorStop(1, 'rgba(0,212,255,0)'); pctx.beginPath(); pctx.ellipse(cx, ly, lw / 2, PR * .025, 0, 0, Math.PI * 2); pctx.fillStyle = g; pctx.fill(); }
+  pctx.restore();
+
+  const rim = pctx.createRadialGradient(cx, cy, PR * .85, cx, cy, PR * 1.18);
+  rim.addColorStop(0, 'rgba(0,212,255,0)'); rim.addColorStop(0.5, 'rgba(0,212,255,0.07)'); rim.addColorStop(1, 'rgba(0,0,0,0)');
+  pctx.beginPath(); pctx.arc(cx, cy, PR * 1.18, 0, Math.PI * 2); pctx.fillStyle = rim; pctx.fill();
+
+  const spec = pctx.createRadialGradient(cx - PR * .35, cy - PR * .35, 0, cx - PR * .35, cy - PR * .35, PR * .5);
+  spec.addColorStop(0, 'rgba(100,200,255,0.12)'); spec.addColorStop(1, 'rgba(0,0,0,0)');
+  pctx.beginPath(); pctx.arc(cx, cy, PR, 0, Math.PI * 2); pctx.fillStyle = spec; pctx.fill();
+
+  const rRX = PR * 1.8, rRY = PR * .45;
+  pctx.save(); pctx.translate(cx, cy);
+  pctx.beginPath(); pctx.ellipse(0, 0, rRX, rRY, 0, Math.PI, Math.PI * 2);
+  const rg1 = pctx.createLinearGradient(-rRX, 0, rRX, 0); rg1.addColorStop(0, 'rgba(0,212,255,0)'); rg1.addColorStop(.3, 'rgba(0,212,255,0.12)'); rg1.addColorStop(.5, 'rgba(120,180,255,0.2)'); rg1.addColorStop(.7, 'rgba(0,212,255,0.12)'); rg1.addColorStop(1, 'rgba(0,212,255,0)');
+  pctx.strokeStyle = rg1; pctx.lineWidth = 4; pctx.stroke();
+  pctx.beginPath(); pctx.ellipse(0, 0, rRX, rRY, 0, 0, Math.PI);
+  const rg2 = pctx.createLinearGradient(-rRX, 0, rRX, 0); rg2.addColorStop(0, 'rgba(0,212,255,0)'); rg2.addColorStop(.3, 'rgba(0,212,255,0.18)'); rg2.addColorStop(.5, 'rgba(150,200,255,0.28)'); rg2.addColorStop(.7, 'rgba(0,212,255,0.18)'); rg2.addColorStop(1, 'rgba(0,212,255,0)');
+  pctx.strokeStyle = rg2; pctx.lineWidth = 5; pctx.stroke();
+  pctx.restore();
+
+  const oR = PR * 2.4, mx = cx + Math.cos(moonAngle) * oR, my = cy + Math.sin(moonAngle) * oR * .35, mR = PR * .1;
+  const mg = pctx.createRadialGradient(mx, my, 0, mx, my, mR * 5); mg.addColorStop(0, 'rgba(0,212,255,0.18)'); mg.addColorStop(1, 'rgba(0,0,0,0)');
+  pctx.beginPath(); pctx.arc(mx, my, mR * 5, 0, Math.PI * 2); pctx.fillStyle = mg; pctx.fill();
+  const mb = pctx.createRadialGradient(mx - mR * .3, my - mR * .3, 0, mx, my, mR); mb.addColorStop(0, '#8ad4f0'); mb.addColorStop(0.5, '#4ab0d8'); mb.addColorStop(1, '#1a4a60');
+  pctx.beginPath(); pctx.arc(mx, my, mR, 0, Math.PI * 2); pctx.fillStyle = mb; pctx.fill();
+  for (let i = 0; i < 18; i++) { const ta = moonAngle - i * .15, tx = cx + Math.cos(ta) * oR, ty = cy + Math.sin(ta) * oR * .35, ta2 = (18 - i) / 18; pctx.beginPath(); pctx.arc(tx, ty, mR * .3 * ta2, 0, Math.PI * 2); pctx.fillStyle = `rgba(0,212,255,${ta2 * .25})`; pctx.fill(); }
+
+  const oR2 = PR * 1.5, m2a = moonAngle * 1.7 + Math.PI, m2x = cx + Math.cos(m2a) * oR2 * .7, m2y = cy + Math.sin(m2a) * oR2 * .22, m2R = mR * .55;
+  const m2g = pctx.createRadialGradient(m2x, m2y, 0, m2x, m2y, m2R * 4); m2g.addColorStop(0, 'rgba(123,47,255,0.2)'); m2g.addColorStop(1, 'rgba(0,0,0,0)');
+  pctx.beginPath(); pctx.arc(m2x, m2y, m2R * 4, 0, Math.PI * 2); pctx.fillStyle = m2g; pctx.fill();
+  const m2b = pctx.createRadialGradient(m2x - m2R * .3, m2y - .3, 0, m2x, m2y, m2R); m2b.addColorStop(0, '#c0a0ff'); m2b.addColorStop(1, '#5020a0');
+  pctx.beginPath(); pctx.arc(m2x, m2y, m2R, 0, Math.PI * 2); pctx.fillStyle = m2b; pctx.fill();
+
+  moonAngle += 0.005;
+  requestAnimationFrame(drawPlanet);
+}
+drawPlanet();
+
+// ===== TYPING =====
+const roles = ['Full-stack-developer','React Specialist','Node.js','Laravel','Creative coder'];
+let ri=0,ci=0,del=false;
+const tel=document.getElementById('typed-text');
+function type(){const cur=roles[ri];if(!del){tel.textContent=cur.slice(0,++ci);if(ci===cur.length){del=true;setTimeout(type,2200);return}}else{tel.textContent=cur.slice(0,--ci);if(ci===0){del=false;ri=(ri+1)%roles.length}}setTimeout(type,del?55:95)}
+type();
+
+// ===== COUNTERS =====
+function animCount(id,end){let v=0;const el=document.getElementById(id);const interval=2000/end;const t=setInterval(()=>{v++;el.textContent=v+'+';if(v>=end)clearInterval(t)},interval)}
+
+// ===== SCROLL ANIMATIONS =====
+const io=new IntersectionObserver(entries=>{entries.forEach(e=>{if(!e.isIntersecting)return;const el=e.target;if(el.classList.contains('sk-card')||el.classList.contains('proj-card')){const idx=[...el.parentElement.children].indexOf(el);setTimeout(()=>el.classList.add('visible'),idx*100)}if(el.id==='cnt1'){animCount('cnt1',15);animCount('cnt2',3);animCount('cnt3',10)}io.unobserve(el)})},{threshold:0.12});
+document.querySelectorAll('.sk-card,.proj-card').forEach(el=>io.observe(el));
+const c1el=document.getElementById('cnt1');if(c1el)io.observe(c1el);
+</script>
