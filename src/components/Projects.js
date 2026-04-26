@@ -3,48 +3,50 @@ import './Projects.css';
 
 const projectsData = [
   {
-    icon: '🛒',
-    thumbBg: 'linear-gradient(135deg,#020c1b,#041e35,#020f22)',
-    radial: 'rgba(0,212,255,0.22)',
-    tags: ['React', 'Redux', 'Firebase'],
-    title: 'E-Commerce Platform',
-    desc: 'Full-featured shopping app with cart, payments, and admin dashboard with real-time inventory.',
+    type: 'video', // أو سميه hybrid
+    videoUrl: '/20260426160439.mp4', 
+    liveUrl: 'https://smarthome-blush.vercel.app/', // ضيفي رابط اللايف هنا
+    githubUrl: 'https://github.com/fatma-programmer/smarthome',
+    tags: ['REACT.JS'],
+    title: 'smarthome',
+    desc: 'Crafting immersive and interactive digital experiences with clean code',
     pgrad: 'linear-gradient(135deg,rgba(0,212,255,0.1),rgba(0,150,200,0.07))',
     pglow: 'rgba(0,212,255,0.15)',
-    liveUrl: '#', githubUrl: '#',
+   
   },
   {
-    icon: '💬',
-    thumbBg: 'linear-gradient(135deg,#0d0221,#1a0533,#0a0118)',
-    radial: 'rgba(123,47,255,0.28)',
-    tags: ['Next.js', 'Socket.io', 'MongoDB'],
-    title: 'Real-Time Chat App',
-    desc: 'Instant messaging with rooms, typing indicators, media sharing and end-to-end encryption.',
-    pgrad: 'linear-gradient(135deg,rgba(123,47,255,0.1),rgba(80,0,200,0.07))',
-    pglow: 'rgba(123,47,255,0.15)',
-    liveUrl: '#', githubUrl: '#',
+     type: 'video', // نوع الكارد
+    videoUrl: '/20260426094402.mp4', // حطي مسار الفيديو هنا
+    githubUrl: 'https://github.com/fatma-programmer/my-first-web-project',
+    tags: ['PHP','MySQL'],
+    title: 'compition system',
+    desc: 'Developed a dynamic competition management system using PHP, enabling.',
+    pgrad: 'linear-gradient(135deg,rgba(0,212,255,0.1),rgba(0,150,200,0.07))',
+    pglow: 'rgba(0,212,255,0.15)',
+    githubUrl: '#',
+   
   },
   {
-    icon: '💬',
-    thumbBg: 'linear-gradient(135deg,#0d0221,#1a0533,#0a0118)',
-    radial: 'rgba(123,47,255,0.28)',
-    tags: ['Next.js', 'Socket.io', 'MongoDB'],
-    title: 'Real-Time Chat App',
-    desc: 'Instant messaging with rooms, typing indicators, media sharing and end-to-end encryption.',
-    pgrad: 'linear-gradient(135deg,rgba(123,47,255,0.1),rgba(80,0,200,0.07))',
-    pglow: 'rgba(123,47,255,0.15)',
-    liveUrl: '#', githubUrl: '#',
+    type: 'video', // أو سميه hybrid
+    videoUrl: '/20260426101843.mp4', 
+    liveUrl: 'https://disney-lemon-seven.vercel.app/', // ضيفي رابط اللايف هنا
+    githubUrl: 'https://github.com/fatma-programmer/disney',
+    tags: ['REACT.JS'],
+    title: 'disney hub web',
+    desc: 'Bringing Disneys magic to life, one pixel and animation at a time',
+    pgrad: 'linear-gradient(135deg,rgba(0,212,255,0.1),rgba(0,150,200,0.07))',
+    pglow: 'rgba(0,212,255,0.15)',
   },
   {
-    icon: '📊',
-    thumbBg: 'linear-gradient(135deg,#020f15,#041e18,#021510)',
-    radial: 'rgba(0,255,179,0.22)',
-    tags: ['React', 'D3.js', 'REST API'],
-    title: 'Analytics Dashboard',
-    desc: 'Interactive data visualization with live charts, custom filters and one-click PDF exports.',
-    pgrad: 'linear-gradient(135deg,rgba(0,255,179,0.08),rgba(0,200,140,0.06))',
-    pglow: 'rgba(0,255,179,0.12)',
-    liveUrl: '#', githubUrl: '#',
+type: 'video', // أو سميه hybrid
+    videoUrl: '/20260426183458.mp4', 
+ // ضيفي رابط اللايف هنا
+    githubUrl: 'https://github.com/fatma-programmer/robomart',
+    tags: ['Node.js','mongodb'],
+    title: 'robomart cart',
+    desc: 'Redefining the future of retail with a modern interface for automated solutions.',
+    pgrad: 'linear-gradient(135deg,rgba(0,212,255,0.1),rgba(0,150,200,0.07))',
+    pglow: 'rgba(0,212,255,0.15)',
   },
 ];
 
@@ -71,6 +73,7 @@ export default function Projects() {
       <h2 className="s-title">Featured <span>Projects</span></h2>
       <div className="aline" />
       <p className="s-sub">Selected work — from concept to deployed product.</p>
+
       <div className="proj-grid">
         {projectsData.map((p, i) => (
           <div
@@ -80,19 +83,35 @@ export default function Projects() {
             style={{ '--pgrad': p.pgrad, '--pglow': p.pglow }}
           >
             <div className="proj-thumb">
-              <div className="proj-thumb-bg" style={{ background: p.thumbBg }} />
-              <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(ellipse at 50% 50%, ${p.radial}, transparent 65%)` }} />
-              <div className="proj-thumb-icon">{p.icon}</div>
+              {p.type === 'video' ? (
+                /* عرض الفيديو */
+                <video className="proj-video" autoPlay muted loop playsInline>
+                  <source src={p.videoUrl} type="video/mp4" />
+                </video>
+              ) : (
+                /* عرض التصميم العادي */
+                <>
+                  <div className="proj-thumb-bg" style={{ background: p.thumbBg }} />
+                  <div style={{ 
+                    position: 'absolute', 
+                    inset: 0, 
+                    background: `radial-gradient(ellipse at 50% 50%, ${p.radial}, transparent 65%)` 
+                  }} />
+                  <div className="proj-thumb-icon">{p.icon}</div>
+                </>
+              )}
             </div>
+
             <div className="proj-body">
               <div className="proj-tags">
                 {p.tags.map(t => <span key={t} className="ptag">{t}</span>)}
               </div>
               <div className="proj-title">{p.title}</div>
               <p className="proj-desc">{p.desc}</p>
+              
               <div className="proj-footer">
                 <div style={{ display: 'flex', gap: '1.2rem' }}>
-                  <a href={p.liveUrl} className="proj-link">Live →</a>
+                  {p.liveUrl && <a href={p.liveUrl} className="proj-link">Live →</a>}
                   <a href={p.githubUrl} className="proj-link">GitHub</a>
                 </div>
                 <div className="proj-arrow">↗</div>

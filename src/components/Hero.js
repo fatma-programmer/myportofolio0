@@ -50,13 +50,17 @@ export default function Hero() {
     const ctx = canvas.getContext('2d');
     let PW, PH, moonAngle = 0, rafId;
 
-    function resize() {
-      const hero = document.getElementById('hero');
-      PW = canvas.width  = hero.offsetWidth;
-      PH = canvas.height = hero.offsetHeight;
-      canvas.style.width  = PW + 'px';
-      canvas.style.height = PH + 'px';
-    }
+   function resize() {
+  const hero = document.getElementById('hero');
+  if (!hero || !canvas) return;
+
+  const rect = hero.getBoundingClientRect();
+  PW = canvas.width  = rect.width;
+  PH = canvas.height = rect.height;
+  
+  canvas.style.width  = PW + 'px';
+  canvas.style.height = PH + 'px';
+}
 
     function draw() {
       ctx.clearRect(0, 0, PW, PH);
